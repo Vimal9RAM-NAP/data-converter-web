@@ -87,6 +87,51 @@ function jsonToMarkdown(jsonObj) {
     return [headerRow, separatorRow, ...rows].join('\n');
 }
 
+function xmlToJson(xml) {
+    let obj = {};
+    if (xml.nodeType === 1) {
+        if (xml.attributes.length > 0) {
+            obj["@attributes"] = {};
+            for (let j = 0; j < xml.attributes.length; j++) {
+                const attribute = xml.attributes.item(j);
+                obj["@attributes"][attribute.nodeName] = attribute.nodeValue;
+            }
+        }
+    } else if (xml.nodeType === 3) {
+        obj = xml.nodeValue.trim();
+    }
+
+    if (xml.hasChildNodes()) {
+        for (let i = 0; i < xml.childNodes.length; i++) {
+            const item = xml.childNodes.item(i);
+            const nodeName = item.nodeName;
+            if (nodeName === "#text") {
+                const text = item.nodeValue.trim();
+                if (text) return text;
+                continue;
+            }
+            if (typeof (obj[nodeName]) == "undefined") {
+                obj[nodeName] = xmlToJson(item);
+            } else {
+                if (typeof (obj[nodeName].push) == "undefined") {
+                    const old = obj[nodeName];
+                    obj[nodeName] = [];
+                    obj[nodeName].push(old);
+                }
+                obj[nodeName].push(xmlToJson(item));
+            }
+        }
+    }
+    return obj;
+}
+
+function parseXML(xmlString) {
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(xmlString, "text/xml");
+    const errorNode = xmlDoc.querySelector("parsererror");
+    if (errorNode) throw new Error(errorNode.textContent);
+    return xmlToJson(xmlDoc.documentElement);
+}
 function processConversion() {
     const rawInput = document.getElementById('data-input').value;
     const outputArea = document.getElementById('data-output');
