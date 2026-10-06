@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Magician</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="static/css/style.css">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
+</head>
+<body class="bg-black text-zinc-100 min-h-screen flex flex-col font-space selection:bg-[#f97316] selection:text-black p-6 space-y-6">
+
+    
+    <header class="flex justify-between items-center">
+       
+        <div class="border border-zinc-800 bg-[#0a0a0a] rounded-xl px-5 py-2.5 flex items-center space-x-3">
+            <span class="h-2.5 w-2.5 rounded-full bg-[#f97316] animate-pulse"></span>
+            <span class="font-bold tracking-tight text-sm text-white uppercase">DATA <span class="text-[#f97316]">MAGICIAN</span></span>
+        </div>
+       
+        <div class="border border-zinc-800 rounded-xl px-4 py-1.5 bg-[#0a0a0a] text-xs font-mono text-zinc-500">
+            v1.0.0
+        </div>
+    </header>
+
+    
+    <main class="grid grid-cols-1 lg:grid-cols-12 gap-6 flex-1 items-stretch">
+        
+        
+        <div class="lg:col-span-6 flex flex-col space-y-6">
+            
+           
+            <div id="drop-zone" class="border border-zinc-800 rounded-2xl bg-[#0a0a0a] p-4 flex flex-col flex-1 min-h-[300px] relative group hover:border-[#f97316]/50 transition-all">
+                <input type="file" id="file-input" accept=".json,.csv,.tsv,.xml,.yaml,.yml,.txt" class="hidden">
+                <div class="flex justify-between items-center pb-2 border-b border-zinc-800 mb-2">
+                    <span class="text-xs font-mono text-zinc-400 uppercase tracking-wider">Input Source Data</span>
+                    <button id="browse-btn" onclick="document.getElementById('file-input').click()" class="text-xs font-mono text-[#f97316] hover:underline">
+                        Upload / Drop File
+                    </button>
+                </div>
+                <textarea id="data-input" class="w-full flex-1 bg-black border border-zinc-900 rounded-xl p-3 text-xs font-mono text-zinc-200 focus:outline-none focus:border-[#f97316] resize-none" placeholder="Paste JSON, CSV, YAML, XML or drop a file here..."></textarea>
+            </div>
+
+            
+            <div class="border border-zinc-800 rounded-2xl bg-[#0a0a0a] p-5 space-y-4">
+                <span class="text-xs font-mono uppercase tracking-wider text-zinc-400 block border-b border-zinc-800 pb-2">Control Bar & Options</span>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-mono text-zinc-400 mb-1.5">Source Format</label>
+                        <select id="source-format" class="w-full bg-black border border-zinc-800 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-[#f97316] font-mono">
+                            <option value="auto">Auto-Detect</option>
+                            <option value="json">JSON</option>
+                            <option value="csv">CSV</option>
+                            <option value="tsv">TSV</option>
+                            <option value="yaml">YAML</option>
+                            <option value="xml">XML</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-mono text-zinc-400 mb-1.5">Target Format</label>
+                        <select id="target-format" class="w-full bg-black border border-zinc-800 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-[#f97316] font-mono">
+                            <option value="json">JSON</option>
+                            <option value="csv">CSV</option>
+                            <option value="yaml">YAML</option>
+                            <option value="xml">XML</option>
+                            <option value="sql">SQL Insert</option>
+                            <option value="markdown">Markdown Table</option>
+                        </select>
+                    </div>
+                </div>
+
+                
+                <div class="grid grid-cols-2 gap-4 pt-1">
+                    <div>
+                        <label class="block text-xs font-mono text-zinc-400 mb-1.5">Indent / Spacing</label>
+                        <select id="indent-size" class="w-full bg-black border border-zinc-800 rounded-xl p-2 text-xs text-white focus:outline-none focus:border-[#f97316] font-mono">
+                            <option value="2">2 Spaces</option>
+                            <option value="4">4 Spaces</option>
+                            <option value="min">Minified</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-mono text-zinc-400 mb-1.5">SQL Table Name</label>
+                        <input type="text" id="sql-table" value="data_table" class="w-full bg-black border border-zinc-800 rounded-xl p-2 text-xs text-white focus:outline-none focus:border-[#f97316] font-mono">
+                    </div>
+                </div>
+
+                
+                <div class="flex space-x-3 pt-2">
+                    <button id="convert-btn" onclick="processConversion()" class="flex-1 bg-[#f97316] hover:bg-[#ea580c] text-black font-bold py-3 rounded-xl transition-all text-xs uppercase tracking-wider">
+                        Transform Data
+                    </button>
+                    <button onclick="clearAll()" class="border border-zinc-800 hover:border-zinc-700 text-zinc-400 hover:text-white px-4 py-3 rounded-xl transition-all text-xs font-mono">
+                        Clear
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+        
+        <div class="lg:col-span-6 border border-zinc-800 rounded-2xl bg-[#0a0a0a] p-5 flex flex-col justify-between space-y-4">
+            
+           
+            <div class="space-y-3 border-b border-zinc-800 pb-3">
+                <div class="flex justify-between items-center">
+                    <span class="text-xs font-mono uppercase tracking-wider text-zinc-400">Sample Data Presets</span>
+                    <div id="status-indicator" class="text-xs font-mono text-zinc-500 flex items-center space-x-1.5">
+                        <span id="status-dot" class="w-2 h-2 rounded-full bg-zinc-600"></span>
+                        <span id="status-text">Ready</span>
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap gap-2">
+                    <button onclick="loadSample('json')" class="px-2.5 py-1 rounded-lg border border-zinc-800 bg-black text-xs font-mono text-zinc-300 hover:border-[#f97316] transition-all">JSON Sample</button>
+                    <button onclick="loadSample('csv')" class="px-2.5 py-1 rounded-lg border border-zinc-800 bg-black text-xs font-mono text-zinc-300 hover:border-[#f97316] transition-all">CSV Sample</button>
+                    <button onclick="loadSample('yaml')" class="px-2.5 py-1 rounded-lg border border-zinc-800 bg-black text-xs font-mono text-zinc-300 hover:border-[#f97316] transition-all">YAML Sample</button>
+                    <button onclick="loadSample('xml')" class="px-2.5 py-1 rounded-lg border border-zinc-800 bg-black text-xs font-mono text-zinc-300 hover:border-[#f97316] transition-all">XML Sample</button>
+                </div>
+            </div>
+
+            
+            <div class="flex-1 flex flex-col min-h-[280px]">
+                <textarea id="data-output" readonly class="w-full flex-1 bg-black border border-zinc-900 rounded-xl p-3 text-xs font-mono text-[#f97316] focus:outline-none resize-none" placeholder="Transformed output will appear here..."></textarea>
+            </div>
+
+            
+            <div id="error-banner" class="hidden border border-red-900/50 bg-red-950/20 text-red-400 rounded-xl p-2.5 text-xs font-mono"></div>
+
+           
+            <div class="border border-zinc-800 rounded-xl p-2.5 bg-black flex justify-between items-center text-xs font-mono text-zinc-500">
+                <span>Chars: <strong id="stat-chars" class="text-zinc-300">0</strong></span>
+                <span>Lines: <strong id="stat-lines" class="text-zinc-300">0</strong></span>
+                <span>Size: <strong id="stat-size" class="text-zinc-300">0 B</strong></span>
+            </div>
+
+           
+            <div class="flex justify-end pt-2">
+                <button id="download-btn" onclick="downloadOutput()" class="bg-black border border-[#f97316] text-[#f97316] hover:bg-[#f97316] hover:text-black font-bold px-8 py-3 rounded-full transition-all text-xs uppercase tracking-wider font-mono flex items-center space-x-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
+                    <span>Download Output</span>
+                </button>
+            </div>
+
+        </div>
+
+    </main>
+
+    <script src="static/js/main.js"></script>
+    <script src="static/js/data-ops.js"></script>
+</body>
+</html>
