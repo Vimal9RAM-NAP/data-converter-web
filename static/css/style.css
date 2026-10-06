@@ -1,0 +1,28 @@
+body {
+    font-family: 'Space Grotesk', sans-serif;
+    background-color: #000000;
+}
+
+.font-mono {
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.dropzone-active {
+    border-color: #f97316 !important;
+    background-color: rgba(249, 115, 22, 0.04) !important;
+}
+
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: #000000;
+}
+::-webkit-scrollbar-thumb {
+    background: #1c1c1f;
+    border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #f97316;
+}
