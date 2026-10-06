@@ -132,6 +132,7 @@ function parseXML(xmlString) {
     if (errorNode) throw new Error(errorNode.textContent);
     return xmlToJson(xmlDoc.documentElement);
 }
+
 function processConversion() {
     const rawInput = document.getElementById('data-input').value;
     const outputArea = document.getElementById('data-output');
@@ -165,6 +166,8 @@ function processConversion() {
             parsedData = parseCSV(rawInput, '\t');
         } else if (srcFmt === 'yaml') {
             parsedData = jsyaml.load(rawInput);
+        } else if (srcFmt === 'xml') {
+            parsedData = parseXML(rawInput);
         } else {
             parsedData = JSON.parse(rawInput);
         }
