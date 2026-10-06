@@ -165,7 +165,7 @@ function downloadOutput() {
     const blob = new Blob([outputText], { type: 'text/plain' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = `data_export_${Date.now()}.${ext}`;
+    link.download = `data_magician_${Date.now()}.${ext}`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
